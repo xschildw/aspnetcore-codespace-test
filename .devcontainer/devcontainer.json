@@ -10,5 +10,12 @@
     "extensions": [
       "ms-dotnettools.csharp"
     ],
-    "postCreateCommand": "dotnet restore"
+    "postCreateCommand": "dotnet restore",
+    "portsAttributes": {
+    "5206": {                // Replace 3000 with your application’s port
+    "label": "Application",
+    "onAutoForward": "openPreview"
+  }
+}
+
   }

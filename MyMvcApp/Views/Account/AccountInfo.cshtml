@@ -1,0 +1,47 @@
+@model MyMvcApp.Models.User
+
+@{
+    ViewData["Title"] = "Account Information";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<!-- Begin the form that posts to the AccountInfo action on AccountController -->
+<form asp-action="AccountInfo" method="post">
+    <div class="form-group">
+        <label asp-for="FirstName" class="control-label"></label>
+        <input asp-for="FirstName" class="form-control" />
+        <span asp-validation-for="FirstName" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <label asp-for="LastName" class="control-label"></label>
+        <input asp-for="LastName" class="form-control" />
+        <span asp-validation-for="LastName" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <label asp-for="UserName" class="control-label"></label>
+        <input asp-for="UserName" class="form-control" />
+        <span asp-validation-for="UserName" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <label asp-for="BirthYear" class="control-label"></label>
+        <input asp-for="BirthYear" class="form-control" />
+        <span asp-validation-for="BirthYear" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <label asp-for="FavoriteColor" class="control-label"></label>
+        <input asp-for="FavoriteColor" class="form-control" />
+        <span asp-validation-for="FavoriteColor" class="text-danger"></span>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Next</button>
+</form>
+
+<!-- Enable client-side validation scripts -->
+@section Scripts {
+@*    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");} *@
+}
