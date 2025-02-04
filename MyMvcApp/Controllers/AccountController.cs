@@ -56,9 +56,9 @@ namespace MyMvcApp.Controllers
                     LastName = user.LastName,
                     BirthYear = user.BirthYear,
                     FavoriteColor = user.FavoriteColor,
-                    Passwords = new List<String>{
-                        _passwordService.GeneratePassword(user.LastName, user.BirthYear, user.FavoriteColor)
-                    }
+                    Passwords = Enumerable.Range(0, 5)
+                       .Select(i => _passwordService.GeneratePassword(user.LastName, user.BirthYear, user.FavoriteColor))
+                       .ToList()
                 };
 
                 return View(viewModel);
@@ -80,26 +80,14 @@ namespace MyMvcApp.Controllers
                 if (ModelState.IsValid)
                 {
                     user.Password = viewModel.SelectedPassword;
-                    return RedirectToAction("ConfirmAccount", user);
+                    TempData["User"] = JsonConvert.SerializeObject(user);
+                    return RedirectToAction("AccountInfo", user);
                 }
             }
             return View(viewModel);
         }
-/*        
-        // GET: /Account/ConfirmAccount
-        // Displays a confirmation page with the user details.
-        [HttpGet]
-        public IActionResult ConfirmAccount()
-        {
-            if (TempData["User"] is string userJson)
-            {
-                var user = JsonConvert.DeserializeObject<User>(userJson);
-                TempData.Keep("User");
-                return View(user);
-            }
-            return RedirectToAction("AccountInfo");
-        }
         
+/*        
         // GET: /Account/LoginPage
         // Displays the login form with the username (and optionally password) prefilled.
         [HttpGet]
