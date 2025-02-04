@@ -16,7 +16,7 @@ namespace MyMvcApp.Models
         [Required(ErrorMessage = "Birth year is required")]
         public string BirthYear { get; set; }
         
-        [Required(ErrorMessage = "Birth year is required")]
+        [Required(ErrorMessage = "Favorite color is required")]
         public string FavoriteColor { get; set; }
         // This property will be set by the password service.
         public string? Password { get; set; }

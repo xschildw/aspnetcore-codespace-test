@@ -51,29 +51,39 @@ namespace MyMvcApp.Controllers
                 var user = JsonConvert.DeserializeObject<User>(userJson);
                 // Keep the TempData for the next request.
                 TempData.Keep("User");
-                return View(user);
+                var viewModel = new PasswordSelectViewModel
+                {
+                    LastName = user.LastName,
+                    BirthYear = user.BirthYear,
+                    FavoriteColor = user.FavoriteColor,
+                    Passwords = new List<String>{
+                        _passwordService.GeneratePassword(user.LastName, user.BirthYear, user.FavoriteColor)
+                    }
+                };
+
+                return View(viewModel);
             }
-            return RedirectToAction("PasswordSelect");
+            return RedirectToAction("AccountInfo");
         }
         
         // POST: /Account/PasswordSelect
         // Calls the injected password service to generate a password based on user info.
         [HttpPost]
-        public IActionResult PasswordSelect(User user, string submitAction)
+        public IActionResult PasswordSelect(PasswordSelectViewModel viewModel)
         {
-            if (ModelState.IsValid)
+            if (TempData["User"] is string userJson)
             {
-                if (submitAction == "generate") {
-                    user.Password = _passwordService.GeneratePassword(user.LastName, user.BirthYear, user.FavoriteColor);
-                    TempData["User"] = JsonConvert.SerializeObject(user);
-                    return View(user);
-                } else if (submitAction == "next") {
-                    TempData["User"] = JsonConvert.SerializeObject(user);
-                   return RedirectToAction("ConfirmAccount");
+                var user = JsonConvert.DeserializeObject<User>(userJson);
+                // Keep the TempData for the next request.
+                TempData.Keep("User");
+
+                if (ModelState.IsValid)
+                {
+                    user.Password = viewModel.SelectedPassword;
+                    return RedirectToAction("ConfirmAccount", user);
                 }
-                // Generate a password using the service (which might use LastName, BirthYear, FavoriteColor).
             }
-            return View(user);
+            return View(viewModel);
         }
 /*        
         // GET: /Account/ConfirmAccount
