@@ -1,3 +1,4 @@
+using MyMvcApp.Models;
 using MyMvcApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<IPasswordService, PasswordService>();
+builder.Services.AddSingleton<User>();
 
 var app = builder.Build();
 

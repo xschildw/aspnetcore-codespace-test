@@ -8,11 +8,13 @@ namespace MyMvcApp.Controllers
     public class AccountController : Controller
     {
         private readonly IPasswordService _passwordService;
+        private User _user;
         
         // The service is injected via the constructor.
-        public AccountController(IPasswordService passwordService)
+        public AccountController(IPasswordService passwordService, User user)
         {
             _passwordService = passwordService;
+            _user = user;
         }
         
         // GET: /Account/AccountInfo
@@ -30,15 +32,18 @@ namespace MyMvcApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Serialize the user object and store it in TempData.
-                TempData["User"] = JsonConvert.SerializeObject(user);
+                _user.FirstName = user.FirstName;
+                _user.LastName = user.LastName;
+                _user.BirthYear = user.BirthYear;
+                _user.UserName = user.UserName;
+                _user.FavoriteColor = user.FavoriteColor;
                 return RedirectToAction("PasswordSelect");
             }
             foreach(var error in ModelState.Values.SelectMany(v => v.Errors))
             {
                 Console.WriteLine(error.ErrorMessage);
             }
-            return View(user);
+            return View(_user);
         }
         
         // GET: /Account/PasswordSelect
@@ -46,24 +51,17 @@ namespace MyMvcApp.Controllers
         [HttpGet]
         public IActionResult PasswordSelect()
         {
-            if (TempData["User"] is string userJson)
+            var viewModel = new PasswordSelectViewModel
             {
-                var user = JsonConvert.DeserializeObject<User>(userJson);
-                // Keep the TempData for the next request.
-                TempData.Keep("User");
-                var viewModel = new PasswordSelectViewModel
-                {
-                    LastName = user.LastName,
-                    BirthYear = user.BirthYear,
-                    FavoriteColor = user.FavoriteColor,
-                    Passwords = Enumerable.Range(0, 5)
-                       .Select(i => _passwordService.GeneratePassword(user.LastName, user.BirthYear, user.FavoriteColor))
-                       .ToList()
-                };
+                LastName = _user.LastName,
+                BirthYear = _user.BirthYear,
+                FavoriteColor = _user.FavoriteColor,
+                Passwords = Enumerable.Range(0, 5)
+                    .Select(i => _passwordService.GeneratePassword(_user.LastName, _user.BirthYear, _user.FavoriteColor))
+                    .ToList()
+            };
 
-                return View(viewModel);
-            }
-            return RedirectToAction("AccountInfo");
+            return View(viewModel);
         }
         
         // POST: /Account/PasswordSelect
@@ -71,63 +69,12 @@ namespace MyMvcApp.Controllers
         [HttpPost]
         public IActionResult PasswordSelect(PasswordSelectViewModel viewModel)
         {
-            if (TempData["User"] is string userJson)
+            if (ModelState.IsValid)
             {
-                var user = JsonConvert.DeserializeObject<User>(userJson);
-                // Keep the TempData for the next request.
-                TempData.Keep("User");
-
-                if (ModelState.IsValid)
-                {
-                    user.Password = viewModel.SelectedPassword;
-                    TempData["User"] = JsonConvert.SerializeObject(user);
-                    return RedirectToAction("AccountInfo", user);
-                }
+                _user.Password = viewModel.SelectedPassword;
             }
-            return View(viewModel);
+            return RedirectToAction("AccountInfo", _user);
         }
         
-/*        
-        // GET: /Account/LoginPage
-        // Displays the login form with the username (and optionally password) prefilled.
-        [HttpGet]
-        public IActionResult LoginPage()
-        {
-            if (TempData["User"] is string userJson)
-            {
-                var user = JsonConvert.DeserializeObject<User>(userJson);
-                TempData.Keep("User");
-                return View(user);
-            }
-            return RedirectToAction("AccountInfo");
-        }
-        
-        // POST: /Account/LoginPage
-        // Processes the login form submission.
-        [HttpPost]
-        public IActionResult LoginPage(string username, string password)
-        {
-            if (TempData["User"] is string userJson)
-            {
-                var user = JsonConvert.DeserializeObject<User>(userJson);
-                // A simple (and not secure) login check.
-                if (username == user.UserName && password == user.Password)
-                {
-                    return RedirectToAction("LoginSuccess");
-                }
-            }
-            
-            ModelState.AddModelError("", "Invalid credentials");
-            return View();
-        }
-        
-        // GET: /Account/LoginSuccess
-        // Displays a simple success message after a successful login.
-        [HttpGet]
-        public IActionResult LoginSuccess()
-        {
-            return View();
-        }
-*/
     }
 }
